@@ -91,6 +91,7 @@ public class VaadintablesUI extends UI {
 		    Label userIdField = new Label(Integer.toString(i), ContentMode.HTML);
 		    Label usernameField = new Label("user" + Integer.toString(i), ContentMode.HTML);
 		    CheckBox markForDeletionField = new CheckBox("delete");
+		    markForDeletionField.setImmediate(true);
 		    
 		    // Multiline text field. This required modifying the 
 		    // height of the table row.
@@ -132,8 +133,70 @@ public class VaadintablesUI extends UI {
 //				
 //			}
 //		});
+		
+		CheckBox selectAllCheckBox = new CheckBox("Select all", false);
+		selectAllCheckBox.setImmediate(true);
+		selectAllCheckBox.addBlurListener(new BlurListener() {
+			@Override
+			public void blur(BlurEvent event) {
+				if(!selectAllCheckBox.getValue()) {
+					for (Object row : table.getItemIds()) {
+						// Get the Property representing a cell
+	                    Property propertyDelete = table.getContainerProperty(row, "Delete");
+	                    
+	                    // Get the value of the Property 
+	                    Object valueDelete = propertyDelete.getValue();
+	                    CheckBox chb = (CheckBox)valueDelete;
+	                    chb.setValue(true);
+					}
+				}
+				else {
+					for (Object row : table.getItemIds()) {
+						// Get the Property representing a cell
+	                    Property propertyDelete = table.getContainerProperty(row, "Delete");
+	                    
+	                    // Get the value of the Property 
+	                    Object valueDelete = propertyDelete.getValue();
+	                    CheckBox chb = (CheckBox)valueDelete;
+	                    chb.setValue(false);
+					}
+				}
+			}
 
-		layout.addComponent(table);	
+		});
+
+		layout.addComponent(table);
+		
+		Button testButton = new Button("Test table iteration", new Button.ClickListener() {
+			
+			@Override
+			public void buttonClick(ClickEvent event) {
+				String message = "";
+				for (Object row : table.getItemIds()) {
+					// Get the Property representing a cell
+                    Property propertyUsername = table.getContainerProperty(row, "Username");
+                    Property propertyUserId = table.getContainerProperty(row, "ID");
+                    Property propertyDelete = table.getContainerProperty(row, "Delete");
+                    
+                    // Get the value of the Property 
+                    Object valueUsername = propertyUsername.getValue();
+                    Object valueUserId = propertyUserId.getValue();
+                    Object valueDelete = propertyDelete.getValue();
+                    
+                    if (((Label) valueUsername).getValue() != null && ((Label) valueUserId).getValue() != null) {
+                        message += "[" + ((Label) valueUserId).getValue() + " : "
+                        		+ ((Label) valueUsername).getValue() + " | "
+                        		+ (((CheckBox)valueDelete).getValue() ? "delete" : "remain") + "] ";
+                    }
+				}
+				
+				Label out = new Label(message);
+				layout.addComponent(out);
+			}
+		});
+		
+		layout.addComponent(selectAllCheckBox);
+		layout.addComponent(testButton);
 		setContent(layout);
 	}
 
